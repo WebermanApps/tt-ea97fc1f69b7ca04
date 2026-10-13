@@ -51,7 +51,7 @@ footer a:hover{border-color:#0a0a0a}
 <div class="bar"><i id="barI"></i></div></div>
 <main class="wrap">
 <div id="swipe">
- <div id="stage"><div id="deck"></div></div>
+ <div id="stage"><div id="deck" data-ptr-ignore></div></div>
  <div class="btns">
   <button class="mw-hover" id="bNo" aria-label="No"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg>No</button>
   <button class="mw-hover" id="bMay" aria-label="Maybe">Maybe</button>
@@ -75,7 +75,7 @@ footer a:hover{border-color:#0a0a0a}
 <footer><a class="mw-hover" href="https://maxweberman.com" target="_blank" rel="noopener">Built by Max Weberman</a></footer>
 <div id="toast" role="status" aria-live="polite"></div>
 <script src="submit.js"></script>
-<script src="ptr.js" defer></script>
+<script src="ptr.js?v=3" defer></script>
 <script>
 const AGENT="scout", DECK="thumbnail-taste";
 const KEY="thumbswipe_v3",V2="thumbswipe_v2",V1="thumbswipe_v1";const $=s=>document.querySelector(s);
