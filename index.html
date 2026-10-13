@@ -40,6 +40,9 @@ button svg{width:16px;height:16px;flex:none}
 .grid span{position:absolute;left:4px;bottom:4px;background:#fff;color:#0a0a0a;font:700 11px Khand;padding:1px 6px;letter-spacing:.08em}
 h3{font-family:var(--mw-font-heading);font-size:20px;margin:16px 0 0;text-transform:uppercase;letter-spacing:.05em}
 textarea{width:100%;height:120px;font:13px monospace;border:1px solid var(--mw-border);padding:8px;display:none}
+.topnav{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.bigback{display:flex;align-items:center;justify-content:center;width:100%;min-height:64px;margin:12px 0;background:#171717;color:#fafafa;font-family:var(--mw-font-heading);font-weight:700;font-size:22px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none}
+#done{display:none;padding:20px 0}#done h2{font-family:var(--mw-font-heading);font-size:34px;margin:10px 0 4px}#done p{color:var(--mw-muted-text)}
 .sharerow{display:flex;justify-content:center;padding:18px 0 10px}
 footer{width:100%;border-top:1px solid var(--mw-border);text-align:center;padding:16px 18px calc(16px + env(safe-area-inset-bottom));margin-top:auto}
 footer a{color:var(--mw-foreground);font-family:var(--mw-font-heading);letter-spacing:var(--mw-tracking-label);text-transform:uppercase;font-size:14px;text-decoration:none;border-bottom:1px solid rgba(10,10,10,.3);display:inline-block;padding:12px 2px}
@@ -47,7 +50,7 @@ footer a:hover{border-color:#0a0a0a}
 #toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#fff;color:#0a0a0a;border:1px solid var(--mw-border);box-shadow:0 6px 18px rgba(10,10,10,.12);padding:10px 18px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}#toast.show{opacity:1}
 @media (min-width:900px){#deck{height:calc(100vh - 360px)}}
 </style></head><body>
-<div class="wrap"><a class="mw-hover" href="https://webermanapps.github.io/scout-dashboard/" style="display:inline-flex;align-items:center;min-height:44px;min-width:44px;margin-top:6px;font-family:var(--mw-font-heading);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0a0a0a;text-decoration:none">&larr; Scout Dashboard</a><header><div><div class="mark">MAX WEBERMAN</div><h1>Thumbnail Taste Deck</h1></div><div id="prog">0 / 0</div></header>
+<div class="wrap"><nav class="topnav"><a class="mw-hover" href="https://webermanapps.github.io/scout-dashboard/" style="display:inline-flex;align-items:center;min-height:44px;min-width:44px;margin-top:6px;font-family:var(--mw-font-heading);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0a0a0a;text-decoration:none">&larr; Scout Dashboard</a><a class="mw-hover" id="dbLink" href="https://webermanapps.github.io/branding-djqmb410/decks/" style="display:inline-flex;align-items:center;min-height:44px;min-width:44px;margin-top:6px;font-family:var(--mw-font-heading);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0a0a0a;text-decoration:none;font-size:13px;color:#525252">Deck Building</a></nav><header><div><div class="mark">MAX WEBERMAN</div><h1>Thumbnail Taste Deck</h1></div><div id="prog">0 / 0</div></header>
 <div class="bar"><i id="barI"></i></div></div>
 <main class="wrap">
 <div id="swipe">
@@ -59,13 +62,14 @@ footer a:hover{border-color:#0a0a0a}
   <button class="mw-hover" id="bYes" aria-label="Yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg>Yes</button>
  </div>
  <div class="notes"><input id="note" type="text" maxlength="300" placeholder="Optional note for this thumbnail" aria-label="Note for this card"></div>
- <div class="sub"><button class="mw-hover quiet" id="bUndo">Undo</button><button class="mw-hover quiet" id="bSkip">Skip</button><button class="mw-hover quiet" id="bEnd">Finish And Submit</button></div>
+ <div class="sub"><button class="mw-hover quiet" id="bUndo">Undo</button><button class="mw-hover quiet" id="bSkip">Skip</button><button class="mw-hover quiet" id="bEnd">Submit Now</button></div>
  <div class="hint">Right = Yes, Left = No, Up = Love, Down = Maybe</div>
 </div>
+<section id="done" aria-live="polite"><h2 id="doneH">Sent To Scout</h2><p id="doneP"></p><a class="bigback mw-hover" href="https://webermanapps.github.io/branding-djqmb410/decks/">Back to Deck Building</a><div class="row"><button class="mw-hover" id="bMore">Keep Swiping</button><button class="mw-hover" id="bDl2">Download JSON</button><button class="mw-hover quiet" id="bSeeAll">See Results</button></div></section>
 <section id="results">
  <h2>Your Thumbnail Taste</h2>
  <p id="sum"></p>
- <div id="submitBox"></div>
+ <div id="submitBox"></div><a class="bigback mw-hover" href="https://webermanapps.github.io/branding-djqmb410/decks/">Back to Deck Building</a>
  <div class="row"><button class="mw-hover" id="bDl">Download JSON</button><button class="mw-hover" id="bCopy">Copy Results</button><button class="mw-hover quiet" id="bBack">Keep Swiping</button><button class="mw-hover quiet" id="bReset">Start Over</button></div>
  <textarea id="fallback" readonly></textarea>
  <div id="groups"></div>
@@ -112,7 +116,7 @@ function decide(ch){const c=rem()[0];if(!c||busy)return;busy=true;
  state.v[c.id]=ch;state.skip=state.skip.filter(x=>x!==c.id);state.hist.push(c.id);save();setTimeout(()=>{busy=false;render()},280)}
 function skip(){const c=rem()[0];if(!c)return;state.skip=state.skip.filter(x=>x!==c.id).concat(c.id);save();render()}
 function undo(){const id=state.hist.pop();if(id){delete state.v[id];save();setView("swipe");render();$("#note").value=state.notes[id]||""}}
-function setView(v){const s=v==="swipe";$("#swipe").style.display=s?"":"none";$("#results").style.display=s?"none":"block"}
+function setView(v){$("#swipe").style.display=v==="swipe"?"":"none";$("#results").style.display=v==="results"?"block":"none";$("#done").style.display=v==="done"?"block":"none"}
 function payload(){return{app:"thumb-swipe",deck:"Thumbnail Taste Deck",deck_id:DECK,agent:AGENT,version:3,submitted_at:new Date().toISOString(),n:done(),of:CARDS.length,
  key:"L=love Y=yes M=maybe N=no",r:CARDS.filter(c=>state.v[c.id]).map(c=>state.notes[c.id]?[c.id,state.v[c.id],state.notes[c.id]]:[c.id,state.v[c.id]])}}
 function showResults(){setView("results");const g={L:[],Y:[],M:[],N:[]};CARDS.forEach(c=>{if(state.v[c.id])g[state.v[c.id]].push(c)});
@@ -121,6 +125,13 @@ function showResults(){setView("results");const g={L:[],Y:[],M:[],N:[]};CARDS.fo
  $("#groups").innerHTML=[["L","Love"],["Y","Yes"],["M","Maybe"],["N","No"]].map(([k,n])=>`<h3>${n} (${g[k].length})</h3><div class="grid">${g[k].map(c=>`<div><img src="${c.img}" loading="lazy" alt=""><span>${n.toUpperCase()}</span></div>`).join("")}</div>`).join("");
 }
 function download(p){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,1)],{type:"application/json"}));a.download=`thumbnail-taste-deck-results-${p.submitted_at.slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
+async function sendNow(){const b=$("#bEnd");if(b.disabled)return;b.disabled=true;b.textContent="Sending";
+ const p=payload(),n=p.n,tot=CARDS.length;try{localStorage.setItem("thumbswipe_v3_lastpayload",JSON.stringify(p))}catch(e){}
+ const ok=await MWSubmit.send({agent:"scout",app:"thumbnail-taste",deck:"Thumbnail Taste Deck",results:p,notes:Object.entries(state.notes||{}).map(([k,v])=>k+": "+v).join("\n"),partial:n<tot,answered:n,total:tot,unanswered:tot-n});
+ b.disabled=false;b.textContent="Submit Now";setView("done");window.scrollTo(0,0);
+ $("#doneH").textContent=ok?"Sent To Scout":"Not Sent Yet";
+ $("#doneP").textContent=(ok?`Sent ${n} of ${tot} answers. `:`Saved ${n} of ${tot} answers on this device; it retries automatically. `)+(tot-n?`The ${tot-n} unanswered cards will be waiting next time.`:"Every card is answered.");
+ $("#bMore").style.display=tot-n?"":"none"}
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
 async function copy(){const txt=JSON.stringify(payload());
  if(navigator.clipboard&&window.isSecureContext){try{await navigator.clipboard.writeText(txt);toast("Results Copied");return}catch(e){}}
@@ -128,10 +139,10 @@ async function copy(){const txt=JSON.stringify(payload());
 async function share(){const url=location.href.split("#")[0];if(navigator.share){try{await navigator.share({title:"Thumbnail Taste Deck",url});return}catch(e){if(e.name==="AbortError")return}}
  try{await navigator.clipboard.writeText(url);toast("Link Copied")}catch(e){toast(url)}}
 $("#bYes").onclick=()=>decide("Y");$("#bNo").onclick=()=>decide("N");$("#bLove").onclick=()=>decide("L");$("#bMay").onclick=()=>decide("M");
-$("#bUndo").onclick=undo;$("#bSkip").onclick=skip;$("#bEnd").onclick=showResults;$("#bShare").onclick=share;
+$("#bUndo").onclick=undo;$("#bSkip").onclick=skip;$("#bEnd").onclick=sendNow;$("#bMore").onclick=()=>{setView("swipe");render()};$("#bSeeAll").onclick=showResults;$("#bDl2").onclick=()=>download(payload());$("#bShare").onclick=share;
 $("#bCopy").onclick=copy;$("#bBack").onclick=()=>{setView("swipe");render()};$("#bDl").onclick=()=>download(payload());
 $("#bReset").onclick=()=>{if(confirm("Clear all ratings and start over?")){localStorage.removeItem(KEY);localStorage.removeItem(V2);localStorage.removeItem(V1);state=load();setView("swipe");render()}};
-document.addEventListener("keydown",e=>{if($("#results").style.display==="block"||e.target.tagName==="INPUT")return;
+document.addEventListener("keydown",e=>{if($("#swipe").style.display==="none"||e.target.tagName==="INPUT")return;
  if(e.key==="ArrowRight")decide("Y");else if(e.key==="ArrowLeft")decide("N");else if(e.key==="ArrowUp"){e.preventDefault();decide("L")}else if(e.key==="ArrowDown"){e.preventDefault();decide("M")}else if(e.key==="s")skip();else if(e.key==="Backspace"||e.key==="z")undo()});
 MWSubmit.button(document.getElementById("submitBox"),{agent:"scout",app:"thumbnail-taste",deck:"Thumbnail Taste Deck",
  getResults:()=>{const p=payload();try{localStorage.setItem("thumbswipe_v3_lastpayload",JSON.stringify(p))}catch(e){}return p},
