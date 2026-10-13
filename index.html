@@ -128,7 +128,7 @@ function download(p){const a=document.createElement("a");a.href=URL.createObject
 async function sendNow(){const b=$("#bEnd");if(b.disabled)return;b.disabled=true;b.textContent="Sending";
  const p=payload(),n=p.n,tot=CARDS.length;try{localStorage.setItem("thumbswipe_v3_lastpayload",JSON.stringify(p))}catch(e){}
  const ok=await MWSubmit.send({agent:"scout",app:"thumbnail-taste",deck:"Thumbnail Taste Deck",results:p,notes:Object.entries(state.notes||{}).map(([k,v])=>k+": "+v).join("\n"),partial:n<tot,answered:n,total:tot,unanswered:tot-n});
- b.disabled=false;b.textContent="Submit Now";setView("done");window.scrollTo(0,0);
+ b.disabled=false;b.textContent="Submit Now";if(!ok&&MWSubmit.blocked)return;setView("done");window.scrollTo(0,0);
  $("#doneH").textContent=ok?"Sent To Scout":"Not Sent Yet";
  $("#doneP").textContent=(ok?`Sent ${n} of ${tot} answers. `:`Saved ${n} of ${tot} answers on this device; it retries automatically. `)+(tot-n?`The ${tot-n} unanswered cards will be waiting next time.`:"Every card is answered.");
  $("#bMore").style.display=tot-n?"":"none"}
