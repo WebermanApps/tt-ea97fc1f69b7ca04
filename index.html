@@ -34,11 +34,6 @@ button svg{width:16px;height:16px;flex:none}
 #results{display:none;padding-top:8px;padding-bottom:10px}
 #results h2{font-family:var(--mw-font-heading);font-size:34px;margin:10px 0 4px}
 #results p{color:var(--mw-muted-text);margin:0 0 14px}
-.big{width:100%;min-height:64px;font-size:22px;background:var(--mw-primary);color:#fafafa}
-.big:disabled{opacity:.6}
-#sent{display:none;border:2px solid #15803d;color:#15803d;padding:14px;margin:12px 0;font-family:var(--mw-font-heading);font-size:20px;text-transform:uppercase;letter-spacing:.05em}
-#sent.warn{border-color:#b45309;color:#b45309}
-#sent small{display:block;font-family:var(--mw-font-body);text-transform:none;letter-spacing:0;font-size:14px;color:var(--mw-muted-text)}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin:8px 0 20px}
 .grid div{position:relative;aspect-ratio:9/16;border-radius:.5rem;overflow:hidden}.grid img{width:100%;height:100%;object-fit:cover}
@@ -70,8 +65,7 @@ footer a:hover{border-color:#0a0a0a}
 <section id="results">
  <h2>Your Thumbnail Taste</h2>
  <p id="sum"></p>
- <button class="mw-hover big" id="bSubmit">Submit To Scout</button>
- <div id="sent"></div>
+ <div id="submitBox"></div>
  <div class="row"><button class="mw-hover" id="bDl">Download JSON</button><button class="mw-hover" id="bCopy">Copy Results</button><button class="mw-hover quiet" id="bBack">Keep Swiping</button><button class="mw-hover quiet" id="bReset">Start Over</button></div>
  <textarea id="fallback" readonly></textarea>
  <div id="groups"></div>
@@ -80,11 +74,10 @@ footer a:hover{border-color:#0a0a0a}
 <div class="sharerow"><button class="mw-hover" id="bShare">Share</button></div>
 <footer><a class="mw-hover" href="https://maxweberman.com" target="_blank" rel="noopener">Built by Max Weberman</a></footer>
 <div id="toast" role="status" aria-live="polite"></div>
+<script src="submit.js"></script>
 <script>
-/* Submit pipeline. SUBMIT_URL is the team deck-submit endpoint. Leave null until one exists:
-   results then stay saved locally and Max uses Download JSON / Copy Results. */
-const SUBMIT_URL=null, AGENT="scout", DECK="thumbnail-taste";
-const KEY="thumbswipe_v3",V2="thumbswipe_v2",V1="thumbswipe_v1",SUBKEY="thumbswipe_v3_submits";const $=s=>document.querySelector(s);
+const AGENT="scout", DECK="thumbnail-taste";
+const KEY="thumbswipe_v3",V2="thumbswipe_v2",V1="thumbswipe_v1";const $=s=>document.querySelector(s);
 const NAMES={Y:"Yes",N:"No",M:"Maybe",L:"Love"};
 let CARDS=[],state;
 function migrate(o){const v={};for(const k in o.v||{}){const c=o.v[k];v[k]=c==="I"?"M":c}return{v,notes:o.notes||{},skip:[],hist:o.hist||[],started:o.started||new Date().toISOString(),migrated:true}}
@@ -123,19 +116,10 @@ function payload(){return{app:"thumb-swipe",deck:"Thumbnail Taste Deck",deck_id:
  key:"L=love Y=yes M=maybe N=no",r:CARDS.filter(c=>state.v[c.id]).map(c=>state.notes[c.id]?[c.id,state.v[c.id],state.notes[c.id]]:[c.id,state.v[c.id]])}}
 function showResults(){setView("results");const g={L:[],Y:[],M:[],N:[]};CARDS.forEach(c=>{if(state.v[c.id])g[state.v[c.id]].push(c)});
  const left=CARDS.length-done();
- $("#sum").textContent=`${g.L.length} Love, ${g.Y.length} Yes, ${g.M.length} Maybe, ${g.N.length} No`+(left?`, ${left} not rated yet.`:".")+" Tap Submit To Scout to send it.";
+ $("#sum").textContent=`${g.L.length} Love, ${g.Y.length} Yes, ${g.M.length} Maybe, ${g.N.length} No`+(left?`, ${left} not rated yet.`:".")+" Tap Submit to send it to Scout.";
  $("#groups").innerHTML=[["L","Love"],["Y","Yes"],["M","Maybe"],["N","No"]].map(([k,n])=>`<h3>${n} (${g[k].length})</h3><div class="grid">${g[k].map(c=>`<div><img src="${c.img}" loading="lazy" alt=""><span>${n.toUpperCase()}</span></div>`).join("")}</div>`).join("");
- const last=JSON.parse(localStorage.getItem(SUBKEY)||"[]").filter(x=>x.ok).pop();if(last)showSent(true,last.at)}
-function showSent(ok,at,err){const s=$("#sent");s.style.display="block";s.className=ok?"":"warn";
- s.innerHTML=ok?`Sent To Scout<small>Received ${new Date(at).toLocaleString()}. A copy is saved on this device.</small>`:`Not Sent Yet<small>${err} Your results are saved on this device. Tap Download JSON and send the file to Scout, or try Submit again.</small>`}
+}
 function download(p){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,1)],{type:"application/json"}));a.download=`thumbnail-taste-deck-results-${p.submitted_at.slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
-async function submit(){const b=$("#bSubmit"),p=payload();b.disabled=true;b.textContent="Sending";
- const log=JSON.parse(localStorage.getItem(SUBKEY)||"[]");let ok=false,err="";
- try{localStorage.setItem("thumbswipe_v3_lastpayload",JSON.stringify(p))}catch(e){}
- if(SUBMIT_URL){try{const r=await fetch(SUBMIT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(p)});ok=r.ok;if(!ok)err=`Server said ${r.status}.`}catch(e){err="No connection."}}
- else err="The submit pipeline is not connected yet.";
- log.push({at:p.submitted_at,ok,n:p.n});try{localStorage.setItem(SUBKEY,JSON.stringify(log))}catch(e){}
- showSent(ok,p.submitted_at,err);b.disabled=false;b.textContent=ok?"Submit Again":"Try Submit Again";if(!ok)download(p)}
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
 async function copy(){const txt=JSON.stringify(payload());
  if(navigator.clipboard&&window.isSecureContext){try{await navigator.clipboard.writeText(txt);toast("Results Copied");return}catch(e){}}
@@ -143,11 +127,14 @@ async function copy(){const txt=JSON.stringify(payload());
 async function share(){const url=location.href.split("#")[0];if(navigator.share){try{await navigator.share({title:"Thumbnail Taste Deck",url});return}catch(e){if(e.name==="AbortError")return}}
  try{await navigator.clipboard.writeText(url);toast("Link Copied")}catch(e){toast(url)}}
 $("#bYes").onclick=()=>decide("Y");$("#bNo").onclick=()=>decide("N");$("#bLove").onclick=()=>decide("L");$("#bMay").onclick=()=>decide("M");
-$("#bUndo").onclick=undo;$("#bSkip").onclick=skip;$("#bEnd").onclick=showResults;$("#bSubmit").onclick=submit;$("#bShare").onclick=share;
+$("#bUndo").onclick=undo;$("#bSkip").onclick=skip;$("#bEnd").onclick=showResults;$("#bShare").onclick=share;
 $("#bCopy").onclick=copy;$("#bBack").onclick=()=>{setView("swipe");render()};$("#bDl").onclick=()=>download(payload());
 $("#bReset").onclick=()=>{if(confirm("Clear all ratings and start over?")){localStorage.removeItem(KEY);localStorage.removeItem(V2);localStorage.removeItem(V1);state=load();setView("swipe");render()}};
 document.addEventListener("keydown",e=>{if($("#results").style.display==="block"||e.target.tagName==="INPUT")return;
  if(e.key==="ArrowRight")decide("Y");else if(e.key==="ArrowLeft")decide("N");else if(e.key==="ArrowUp"){e.preventDefault();decide("L")}else if(e.key==="ArrowDown"){e.preventDefault();decide("M")}else if(e.key==="s")skip();else if(e.key==="Backspace"||e.key==="z")undo()});
+MWSubmit.button(document.getElementById("submitBox"),{agent:"scout",app:"thumbnail-taste",deck:"Thumbnail Taste Deck",
+ getResults:()=>{const p=payload();try{localStorage.setItem("thumbswipe_v3_lastpayload",JSON.stringify(p))}catch(e){}return p},
+ getNotes:()=>Object.entries(state.notes||{}).map(([k,v])=>k+": "+v).join("\n")});
 state=load();state.notes=state.notes||{};state.skip=state.skip||[];
 fetch("manifest.json?v=3").then(r=>r.json()).then(m=>{CARDS=m.cards;render()});
 </script></body></html>
