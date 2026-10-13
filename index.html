@@ -75,6 +75,7 @@ footer a:hover{border-color:#0a0a0a}
 <footer><a class="mw-hover" href="https://maxweberman.com" target="_blank" rel="noopener">Built by Max Weberman</a></footer>
 <div id="toast" role="status" aria-live="polite"></div>
 <script src="submit.js"></script>
+<script src="ptr.js" defer></script>
 <script>
 const AGENT="scout", DECK="thumbnail-taste";
 const KEY="thumbswipe_v3",V2="thumbswipe_v2",V1="thumbswipe_v1";const $=s=>document.querySelector(s);
@@ -95,7 +96,7 @@ function render(){const d=$("#deck");d.innerHTML="";const r=rem();prog();$("#not
   el.innerHTML=`<img src="${c.img}" alt="Thumbnail ${c.id}"><div class="stamp s-yes">YES</div><div class="stamp s-no">NO</div><div class="stamp s-love">LOVE</div><div class="stamp s-may">MAYBE</div>`;
   d.appendChild(el);if(depth===0)drag(el)});
  r.slice(3,6).forEach(c=>{new Image().src=c.img})}
-function drag(el){let sx,sy,dx=0,dy=0,on=false;const st=s=>el.querySelector(s).style;
+function drag(el){let sx,sy,dx=0,dy=0,on=false;["touchstart","touchmove","touchend"].forEach(t=>el.addEventListener(t,e=>e.stopPropagation(),{passive:true}));/* keep card swipes from triggering page pull-to-refresh */const st=s=>el.querySelector(s).style;
  el.onpointerdown=e=>{on=true;dx=dy=0;sx=e.clientX;sy=e.clientY;el.setPointerCapture(e.pointerId);el.style.transition="none"};
  el.onpointermove=e=>{if(!on)return;dx=e.clientX-sx;dy=e.clientY-sy;el.style.transform=`translate(${dx}px,${dy}px) rotate(${dx/18}deg)`;
   st(".s-yes").opacity=Math.max(0,dx/100);st(".s-no").opacity=Math.max(0,-dx/100);st(".s-love").opacity=Math.max(0,(-dy-Math.abs(dx))/100);st(".s-may").opacity=Math.max(0,(dy-Math.abs(dx))/100)};
